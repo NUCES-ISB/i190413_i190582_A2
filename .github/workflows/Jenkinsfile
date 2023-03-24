@@ -1,0 +1,25 @@
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                bat 'docker build --tag mlops_a2 .'
+            }
+        }
+        stage('Push image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-talha-credentials', usernameVariable: 'D_USERNAME', passwordVariable: 'D_PASSWORD')]) {
+                    bat 'docker login -u %D_USERNAME% -p %D_PASSWORD%'
+                }
+                bat 'docker tag mlops_a2 malik727/mlops_a2'
+                bat 'docker push malik727/mlops_a2'
+            }
+        }
+        stage('Run Image') {
+            steps {
+                bat 'docker run -d -p 5000:5000 malik727/mlops_a2'
+            }
+        }
+    }
+}
+
